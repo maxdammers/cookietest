@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Test - Pagina 2 (Read Cookie)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .cookie-value {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            font-size: 18px;
+            word-wrap: break-word;
+        }
+        .no-cookie {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        button.delete {
+            background-color: #dc3545;
+        }
+        button.delete:hover {
+            background-color: #c82333;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3fe;
+            border-left: 4px solid #2196F3;
+        }
+        a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .all-cookies {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cookie Test - Pagina 2</h1>
+        <p>Deze pagina leest de cookie die op pagina 1 is ingesteld.</p>
+
+        <div id="cookieDisplay">
+            <!-- Cookie waarde wordt hier getoond -->
+        </div>
+
+        <div>
+            <button onclick="readCookie()">Cookie Opnieuw Uitlezen</button>
+            <button class="delete" onclick="deleteCookie()">Cookie Verwijderen</button>
+            <br><br>
+            <a href="page1.html">← Terug naar Pagina 1</a>
+        </div>
+
+        <div class="info">
+            <strong>Info:</strong> Deze pagina zoekt naar een cookie met de naam <code>testCookie</code>.
+            Als de cookie bestaat, wordt de waarde hieronder getoond.
+        </div>
+
+        <div class="all-cookies">
+            <strong>Alle cookies in deze browser:</strong>
+            <div id="allCookies" style="margin-top: 10px;">
+                Geen cookies gevonden
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getCookie(name) {
+            const nameEQ = name + "=";
+            const ca = document.cookie.split(';');
+
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) == 0) {
+                    return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                }
+            }
+            return null;
+        }
+
+        function readCookie() {
+            const cookieValue = getCookie('testCookie');
+            const displayDiv = document.getElementById('cookieDisplay');
+
+            if (cookieValue) {
+                displayDiv.innerHTML = `
+                    <div class="cookie-value">
+                        <strong>Cookie gevonden!</strong><br><br>
+                        <strong>Naam:</strong> testCookie<br>
+                        <strong>Waarde:</strong> ${cookieValue}
+                    </div>
+                `;
+            } else {
+                displayDiv.innerHTML = `
+                    <div class="no-cookie">
+                        <strong>Geen cookie gevonden!</strong><br><br>
+                        Ga naar <a href="page1.html">Pagina 1</a> om een cookie in te stellen.
+                    </div>
+                `;
+            }
+
+            displayAllCookies();
+        }
+
+        function deleteCookie() {
+            // Verwijder de cookie door de vervaldatum in het verleden te zetten
+            document.cookie = "testCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+            alert('Cookie verwijderd!');
+            readCookie();
+        }
+
+        function displayAllCookies() {
+            const cookies = document.cookie;
+            const allCookiesDiv = document.getElementById('allCookies');
+
+            if (cookies) {
+                // Splits cookies en toon ze op aparte regels
+                const cookieArray = cookies.split(';').map(c => c.trim());
+                allCookiesDiv.innerHTML = cookieArray.join('<br>');
+            } else {
+                allCookiesDiv.textContent = 'Geen cookies gevonden';
+            }
+        }
+
+        // Lees cookie bij laden van de pagina
+        readCookie();
+
+        // Update elke 2 seconden
+        setInterval(readCookie, 2000);
+    </script>
+</body>
+</html>

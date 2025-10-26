@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookie Test - Pagina 1 (Set Cookie)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        input {
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3fe;
+            border-left: 4px solid #2196F3;
+        }
+        .success {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            display: none;
+        }
+        a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cookie Test - Pagina 1</h1>
+        <p>Deze pagina zet een cookie met een waarde die je op pagina 2 kunt uitlezen.</p>
+
+        <div>
+            <label for="cookieValue">Voer een waarde in voor de cookie:</label><br>
+            <input type="text" id="cookieValue" placeholder="Bijv: Hallo vanaf pagina 1!" value="Test waarde 123">
+        </div>
+
+        <div>
+            <label for="cookieDays">Geldigheid (dagen):</label><br>
+            <input type="number" id="cookieDays" value="7" min="1" max="365">
+        </div>
+
+        <button onclick="setCookie()">Cookie Instellen</button>
+
+        <div id="successMessage" class="success">
+            Cookie succesvol ingesteld!
+            <br><br>
+            <a href="page2.html">Ga naar Pagina 2 om de cookie te lezen →</a>
+        </div>
+
+        <div class="info">
+            <strong>Info:</strong> Deze pagina zet een cookie met de naam <code>testCookie</code>.
+            De cookie wordt opgeslagen in je browser en kan op pagina 2 worden uitgelezen.
+        </div>
+
+        <div style="margin-top: 20px;">
+            <strong>Huidige cookies:</strong>
+            <div id="currentCookies" style="margin-top: 10px; font-family: monospace; background-color: #f9f9f9; padding: 10px; border-radius: 4px;">
+                Geen cookies gevonden
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function setCookie() {
+            const value = document.getElementById('cookieValue').value;
+            const days = parseInt(document.getElementById('cookieDays').value);
+
+            if (!value) {
+                alert('Voer eerst een waarde in!');
+                return;
+            }
+
+            // Bereken vervaldatum
+            const date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            const expires = "expires=" + date.toUTCString();
+
+            // Zet de cookie
+            document.cookie = "testCookie=" + encodeURIComponent(value) + ";" + expires + ";path=/";
+
+            // Toon succesbericht
+            document.getElementById('successMessage').style.display = 'block';
+
+            // Update cookie display
+            displayCookies();
+        }
+
+        function displayCookies() {
+            const cookies = document.cookie;
+            const cookieDiv = document.getElementById('currentCookies');
+
+            if (cookies) {
+                cookieDiv.textContent = cookies;
+            } else {
+                cookieDiv.textContent = 'Geen cookies gevonden';
+            }
+        }
+
+        // Toon huidige cookies bij laden
+        displayCookies();
+
+        // Update cookie display elke 2 seconden
+        setInterval(displayCookies, 2000);
+    </script>
+</body>
+</html>
