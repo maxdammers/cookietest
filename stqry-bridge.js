@@ -172,10 +172,13 @@
   document.addEventListener('message', onMessage);
 
   /**
-   * STQRY Storage API - Public interface voor data opslag en ophalen
-   * Beschikbaar via window.stqry.storage
+   * STQRY API - Public interface voor cross-context communicatie
+   * Beschikbaar via window.stqry met modules: storage, user, device, language, location
    */
   window.stqry = {
+    /**
+     * Storage API - Data opslag en synchronisatie
+     */
     storage: {
       /**
        * Haal een waarde op uit storage
@@ -331,6 +334,260 @@
           timestamp: Date.now(), // Timestamp zorgt dat de waarde altijd verandert
           data: data
         }));
+      }
+    },
+
+    /**
+     * User API - Gebruikers informatie
+     * In NoRuntime mode gebruikt het een fallback user object
+     */
+    user: {
+      /**
+       * Haal gebruikers informatie op
+       *
+       * @param {Function} callback - Functie die wordt aangeroepen met user object
+       *
+       * @example
+       * stqry.user.get(function(user) {
+       *   console.log('User:', user.name);
+       *   console.log('Email:', user.email);
+       * });
+       */
+      get: function(callback) {
+        if (window.stqryRuntime === 'NoRuntime') {
+          // Fallback: probeer user uit localStorage te halen, of gebruik demo data
+          var storedUser = localStorage.getItem('stqryUser');
+          var user = storedUser ? JSON.parse(storedUser) : {
+            id: 'demo-user',
+            name: 'Demo User',
+            email: 'demo@example.com',
+            isGuest: true
+          };
+          if (callback) callback(user);
+          return user;
+        }
+
+        // In IFrame/ReactNative mode: vraag user info aan parent
+        callApp('user.get', {}, callback);
+      },
+
+      /**
+       * Sla user informatie op (alleen NoRuntime mode)
+       *
+       * @param {Object} user - User object om op te slaan
+       * @param {Function} callback - Optionele callback
+       */
+      set: function(user, callback) {
+        if (window.stqryRuntime === 'NoRuntime') {
+          localStorage.setItem('stqryUser', JSON.stringify(user));
+          if (callback) callback();
+          return;
+        }
+
+        // In andere modes wordt user beheerd door de parent
+        console.warn('user.set() is alleen beschikbaar in NoRuntime mode');
+        if (callback) callback();
+      }
+    },
+
+    /**
+     * Device API - Device informatie
+     */
+    device: {
+      /**
+       * Haal device informatie op
+       *
+       * @param {Function} callback - Functie die wordt aangeroepen met device info
+       *
+       * @example
+       * stqry.device.get(function(device) {
+       *   console.log('Platform:', device.platform);
+       *   console.log('OS:', device.os);
+       * });
+       */
+      get: function(callback) {
+        if (window.stqryRuntime === 'NoRuntime') {
+          // Detecteer device info via browser APIs
+          var device = {
+            platform: navigator.platform,
+            userAgent: navigator.userAgent,
+            language: navigator.language,
+            online: navigator.onLine,
+            screenWidth: window.screen.width,
+            screenHeight: window.screen.height,
+            windowWidth: window.innerWidth,
+            windowHeight: window.innerHeight,
+            devicePixelRatio: window.devicePixelRatio || 1,
+            touchSupport: 'ontouchstart' in window,
+            // Detecteer OS
+            os: (function() {
+              var ua = navigator.userAgent;
+              if (ua.indexOf('Win') !== -1) return 'Windows';
+              if (ua.indexOf('Mac') !== -1) return 'MacOS';
+              if (ua.indexOf('Linux') !== -1) return 'Linux';
+              if (ua.indexOf('Android') !== -1) return 'Android';
+              if (ua.indexOf('iOS') !== -1 || ua.indexOf('iPhone') !== -1) return 'iOS';
+              return 'Unknown';
+            })(),
+            // Detecteer browser
+            browser: (function() {
+              var ua = navigator.userAgent;
+              if (ua.indexOf('Firefox') !== -1) return 'Firefox';
+              if (ua.indexOf('Chrome') !== -1) return 'Chrome';
+              if (ua.indexOf('Safari') !== -1) return 'Safari';
+              if (ua.indexOf('Edge') !== -1) return 'Edge';
+              return 'Unknown';
+            })()
+          };
+          if (callback) callback(device);
+          return device;
+        }
+
+        // In IFrame/ReactNative mode: vraag device info aan parent
+        callApp('device.get', {}, callback);
+      }
+    },
+
+    /**
+     * Language API - Taal voorkeuren
+     */
+    language: {
+      /**
+       * Haal huidige taal op
+       *
+       * @param {Function} callback - Functie die wordt aangeroepen met taal code
+       *
+       * @example
+       * stqry.language.get(function(lang) {
+       *   console.log('Language:', lang); // 'nl', 'en', etc.
+       * });
+       */
+      get: function(callback) {
+        if (window.stqryRuntime === 'NoRuntime') {
+          // Haal taal uit localStorage of browser
+          var storedLang = localStorage.getItem('stqryLanguage');
+          var lang = storedLang || navigator.language.split('-')[0]; // 'nl-NL' -> 'nl'
+          if (callback) callback(lang);
+          return lang;
+        }
+
+        callApp('language.get', {}, callback);
+      },
+
+      /**
+       * Zet de taal
+       *
+       * @param {string} lang - Taal code (bijv. 'nl', 'en')
+       * @param {Function} callback - Optionele callback
+       *
+       * @example
+       * stqry.language.set('en', function() {
+       *   console.log('Language set to English');
+       * });
+       */
+      set: function(lang, callback) {
+        if (window.stqryRuntime === 'NoRuntime') {
+          localStorage.setItem('stqryLanguage', lang);
+          // Trigger event voor andere tabs
+          var event = new CustomEvent('stqryLanguageChanged', {
+            detail: { language: lang }
+          });
+          window.dispatchEvent(event);
+          if (callback) callback();
+          return;
+        }
+
+        callApp('language.set', { language: lang }, callback);
+      }
+    },
+
+    /**
+     * Location API - Navigatie en locatie
+     */
+    location: {
+      /**
+       * Navigeer naar een nieuwe URL of route
+       *
+       * @param {string} url - URL of route om naar toe te navigeren
+       * @param {Function} callback - Optionele callback
+       *
+       * @example
+       * stqry.location.set('/home', function() {
+       *   console.log('Navigated to home');
+       * });
+       */
+      set: function(url, callback) {
+        if (window.stqryRuntime === 'NoRuntime') {
+          // In browser: gewoon navigeren
+          window.location.href = url;
+          if (callback) callback();
+          return;
+        }
+
+        // In IFrame/ReactNative: vraag parent om te navigeren
+        callApp('location.set', { url: url }, callback);
+      },
+
+      /**
+       * Haal huidige locatie/route op
+       *
+       * @param {Function} callback - Functie die wordt aangeroepen met locatie info
+       */
+      get: function(callback) {
+        if (window.stqryRuntime === 'NoRuntime') {
+          var location = {
+            href: window.location.href,
+            pathname: window.location.pathname,
+            search: window.location.search,
+            hash: window.location.hash,
+            host: window.location.host
+          };
+          if (callback) callback(location);
+          return location;
+        }
+
+        callApp('location.get', {}, callback);
+      }
+    },
+
+    /**
+     * Utility functies
+     */
+    utils: {
+      /**
+       * Check welke runtime mode actief is
+       *
+       * @returns {string} 'NoRuntime', 'IFrame', of 'ReactNative'
+       */
+      getRuntime: function() {
+        return window.stqryRuntime;
+      },
+
+      /**
+       * Check of we in een standalone browser zijn
+       *
+       * @returns {boolean}
+       */
+      isStandalone: function() {
+        return window.stqryRuntime === 'NoRuntime';
+      },
+
+      /**
+       * Check of we in een iframe zitten
+       *
+       * @returns {boolean}
+       */
+      isIFrame: function() {
+        return window.stqryRuntime === 'IFrame';
+      },
+
+      /**
+       * Check of we in React Native zitten
+       *
+       * @returns {boolean}
+       */
+      isReactNative: function() {
+        return window.stqryRuntime === 'ReactNative';
       }
     }
   };

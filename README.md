@@ -1,6 +1,15 @@
-# STQRY Storage Bridge Test
+# STQRY API Bridge - Complete Implementation
 
-Dit project demonstreert cross-context data synchronisatie via de **STQRY Storage Bridge API**, gebaseerd op [mytours/stqry-api-bridge](https://github.com/mytours/stqry-api-bridge).
+Dit project demonstreert een complete implementatie van de **STQRY API Bridge**, gebaseerd op [mytours/stqry-api-bridge](https://github.com/mytours/stqry-api-bridge).
+
+## 🎯 Features
+
+- ✅ **Storage API** - Data persistentie en synchronisatie
+- ✅ **User API** - Gebruikers informatie management
+- ✅ **Device API** - Device detectie en informatie
+- ✅ **Language API** - Meertaligheid ondersteuning
+- ✅ **Location API** - Navigatie en locatie management
+- ✅ **Utils API** - Utility functies en runtime detectie
 
 ## Waarom geen cookies?
 
@@ -44,9 +53,11 @@ window.stqry.storage.get(null, function(allData) {
 });
 ```
 
-## API Referentie
+## 📖 Complete API Referentie
 
-### `stqry.storage.set(changeset, callback, customKey)`
+### Storage API
+
+#### `stqry.storage.set(changeset, callback, customKey)`
 
 Sla één of meerdere key-value pairs op.
 
@@ -143,6 +154,70 @@ window.addEventListener('stqryStorageUpdated', function(e) {
 ✅ **Betere API** met callbacks en error handling
 ✅ **Cross-context support** via postMessage (iframes, WebViews)
 ✅ **Geen expiration complexity** (blijft tot expliciet verwijderd)
+
+---
+
+### User API
+
+#### `stqry.user.get(callback)`
+
+Haal gebruikers informatie op.
+
+```javascript
+window.stqry.user.get(function(user) {
+  console.log('User:', user.name, user.email);
+});
+```
+
+#### `stqry.user.set(user, callback)`
+
+Sla user info op (alleen NoRuntime mode).
+
+---
+
+### Device API
+
+#### `stqry.device.get(callback)`
+
+Haal device informatie op (OS, browser, screen size, etc).
+
+```javascript
+window.stqry.device.get(function(device) {
+  console.log('Device:', device.platform, device.os, device.browser);
+});
+```
+
+---
+
+### Language API
+
+#### `stqry.language.get(callback)` / `stqry.language.set(lang, callback)`
+
+Beheer taal instellingen.
+
+```javascript
+window.stqry.language.set('en', function() {
+  console.log('Language changed');
+});
+```
+
+---
+
+### Location API
+
+#### `stqry.location.get(callback)` / `stqry.location.set(url, callback)`
+
+Beheer navigatie en locatie.
+
+---
+
+### Utils API
+
+Helper functies: `getRuntime()`, `isStandalone()`, `isIFrame()`, `isReactNative()`
+
+## 🎮 Demo Pagina
+
+Bekijk [demo.html](demo.html) voor een complete demonstratie van alle APIs.
 
 ## Runtime Detection
 
