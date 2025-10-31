@@ -102,43 +102,61 @@
         </div>
     </div>
 
+    <!-- Laad de STQRY Storage Bridge library -->
     <script src="stqry-bridge.js"></script>
     <script>
+        /**
+         * Sla data op via de STQRY Storage API
+         * Wordt aangeroepen door de "Data Opslaan" knop
+         */
         function setData() {
+            // Haal de ingevoerde waarden op uit de input velden
             const value = document.getElementById('dataValue').value;
             const key = document.getElementById('dataKey').value;
 
+            // Validatie: check of er een waarde is ingevoerd
             if (!value) {
                 alert('Voer eerst een waarde in!');
                 return;
             }
 
+            // Validatie: check of er een storage key is ingevoerd
             if (!key) {
                 alert('Voer een storage key in!');
                 return;
             }
 
-            // Sla data op via STQRY Storage API
+            // Bouw een changeset object met de key-value pair
+            // We voegen ook een timestamp toe om te zien wanneer de data is opgeslagen
             const changeset = {};
             changeset[key] = value;
             changeset.timestamp = new Date().toISOString();
 
+            // Sla de data op via de STQRY Storage API
+            // De callback wordt aangeroepen nadat de data succesvol is opgeslagen
             window.stqry.storage.set(changeset, function() {
                 console.log('Data opgeslagen!');
 
-                // Toon succesbericht
+                // Toon het groene succesbericht met link naar pagina 2
                 document.getElementById('successMessage').style.display = 'block';
 
-                // Update storage display
+                // Update de display met de nieuwe storage inhoud
                 displayStorage();
             });
         }
 
+        /**
+         * Haal alle storage data op en toon het in de UI
+         * Gebruikt stqry.storage.get() met null als key om alle data op te halen
+         */
         function displayStorage() {
+            // Haal alle data op (null = alle keys)
             window.stqry.storage.get(null, function(data) {
                 const storageDiv = document.getElementById('currentStorage');
 
+                // Check of er data is en toon het als geformatteerde JSON
                 if (data && Object.keys(data).length > 0) {
+                    // JSON.stringify met indent 2 voor mooie formatting
                     storageDiv.textContent = JSON.stringify(data, null, 2);
                 } else {
                     storageDiv.textContent = 'Geen data gevonden';
@@ -146,21 +164,35 @@
             });
         }
 
+        /**
+         * Toon de gedetecteerde runtime mode in de UI
+         * Mogelijke waardes: 'NoRuntime', 'IFrame', 'ReactNative'
+         */
         function displayRuntime() {
             document.getElementById('runtime').textContent = window.stqryRuntime;
         }
 
-        // Luister naar storage updates
+        /**
+         * Luister naar storage updates van andere tabs/pagina's
+         * Het 'stqryStorageUpdated' event wordt gefired wanneer een andere tab
+         * data wijzigt via de STQRY Storage API
+         */
         window.addEventListener('stqryStorageUpdated', function(e) {
             console.log('Storage updated:', e.detail);
+            // Update de display met de nieuwe data
             displayStorage();
         });
 
-        // Toon runtime en storage bij laden
+        // ===== Initialisatie bij laden van de pagina =====
+
+        // Toon de runtime mode
         displayRuntime();
+
+        // Laad en toon de huidige storage inhoud
         displayStorage();
 
-        // Update storage display elke 2 seconden
+        // Poll elke 2 seconden voor updates (fallback naast de event listener)
+        // Dit zorgt ervoor dat we ook updates zien als het event om een of andere reden niet fired
         setInterval(displayStorage, 2000);
     </script>
 </body>
