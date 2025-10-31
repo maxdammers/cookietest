@@ -93,8 +93,9 @@
    * @param {string} action - De actie naam (bijv. 'storage.set', 'storage.get')
    * @param {Object} data - De data payload voor deze actie
    * @param {Function} callback - Optionele callback die wordt aangeroepen met het response
+   * @param {Function} fallback - Optionele fallback functie als parent niet reageert
    */
-  function callApp(action, data, callback) {
+  function callApp(action, data, callback, fallback) {
     // Bouw het message object volgens het STQRY protocol
     var message = {
       action: action,      // De uit te voeren actie
@@ -108,6 +109,18 @@
       var callbackId = lastAppCallbackId;
       message.callbackId = callbackId;
       appCallbacks[callbackId] = callback;
+
+      // Stel timeout in: als parent niet binnen 500ms reageert, gebruik fallback
+      if (fallback) {
+        setTimeout(function() {
+          // Als callback nog steeds bestaat, is er geen response gekomen
+          if (appCallbacks[callbackId]) {
+            delete appCallbacks[callbackId];
+            console.warn('Parent not responding for action:', action, '- using fallback');
+            fallback();
+          }
+        }, 500);
+      }
     }
 
     // Verstuur message via het juiste kanaal afhankelijk van runtime
@@ -354,21 +367,28 @@
        * });
        */
       get: function(callback) {
-        if (window.stqryRuntime === 'NoRuntime') {
-          // Fallback: probeer user uit localStorage te halen, of gebruik demo data
+        // Helper functie om lokale user data op te halen
+        var getLocalUser = function() {
           var storedUser = localStorage.getItem('stqryUser');
-          var user = storedUser ? JSON.parse(storedUser) : {
+          return storedUser ? JSON.parse(storedUser) : {
             id: 'demo-user',
             name: 'Demo User',
             email: 'demo@example.com',
             isGuest: true
           };
+        };
+
+        if (window.stqryRuntime === 'NoRuntime') {
+          var user = getLocalUser();
           if (callback) callback(user);
           return user;
         }
 
-        // In IFrame/ReactNative mode: vraag user info aan parent
-        callApp('user.get', {}, callback);
+        // In IFrame/ReactNative mode: probeer parent, fallback naar localStorage
+        callApp('user.get', {}, callback, function() {
+          // Fallback: gebruik lokale data
+          if (callback) callback(getLocalUser());
+        });
       },
 
       /**
@@ -406,9 +426,9 @@
        * });
        */
       get: function(callback) {
-        if (window.stqryRuntime === 'NoRuntime') {
-          // Detecteer device info via browser APIs
-          var device = {
+        // Helper functie om lokale device info te detecteren
+        var getLocalDevice = function() {
+          return {
             platform: navigator.platform,
             userAgent: navigator.userAgent,
             language: navigator.language,
@@ -439,12 +459,19 @@
               return 'Unknown';
             })()
           };
+        };
+
+        if (window.stqryRuntime === 'NoRuntime') {
+          var device = getLocalDevice();
           if (callback) callback(device);
           return device;
         }
 
-        // In IFrame/ReactNative mode: vraag device info aan parent
-        callApp('device.get', {}, callback);
+        // In IFrame/ReactNative mode: probeer parent, fallback naar browser detection
+        callApp('device.get', {}, callback, function() {
+          // Fallback: gebruik browser APIs
+          if (callback) callback(getLocalDevice());
+        });
       }
     },
 
@@ -463,15 +490,22 @@
        * });
        */
       get: function(callback) {
-        if (window.stqryRuntime === 'NoRuntime') {
-          // Haal taal uit localStorage of browser
+        // Helper functie om lokale taal op te halen
+        var getLocalLanguage = function() {
           var storedLang = localStorage.getItem('stqryLanguage');
-          var lang = storedLang || navigator.language.split('-')[0]; // 'nl-NL' -> 'nl'
+          return storedLang || navigator.language.split('-')[0]; // 'nl-NL' -> 'nl'
+        };
+
+        if (window.stqryRuntime === 'NoRuntime') {
+          var lang = getLocalLanguage();
           if (callback) callback(lang);
           return lang;
         }
 
-        callApp('language.get', {}, callback);
+        // Probeer parent, fallback naar localStorage/browser
+        callApp('language.get', {}, callback, function() {
+          if (callback) callback(getLocalLanguage());
+        });
       },
 
       /**
@@ -534,19 +568,27 @@
        * @param {Function} callback - Functie die wordt aangeroepen met locatie info
        */
       get: function(callback) {
-        if (window.stqryRuntime === 'NoRuntime') {
-          var location = {
+        // Helper functie om lokale location info op te halen
+        var getLocalLocation = function() {
+          return {
             href: window.location.href,
             pathname: window.location.pathname,
             search: window.location.search,
             hash: window.location.hash,
             host: window.location.host
           };
+        };
+
+        if (window.stqryRuntime === 'NoRuntime') {
+          var location = getLocalLocation();
           if (callback) callback(location);
           return location;
         }
 
-        callApp('location.get', {}, callback);
+        // Probeer parent, fallback naar window.location
+        callApp('location.get', {}, callback, function() {
+          if (callback) callback(getLocalLocation());
+        });
       }
     },
 
