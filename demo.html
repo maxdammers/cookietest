@@ -290,8 +290,22 @@
         // Location API Tests
         function testLocationGet() {
             window.stqry.location.get(function(location) {
-                document.getElementById('locationOutput').textContent =
-                    '✓ Current Location:\n' + JSON.stringify(location, null, 2);
+                // Maak een meer leesbare output met alle location details
+                const output = [
+                    '✓ Location Info:',
+                    '',
+                    'Full URL: ' + location.href,
+                    'Protocol: ' + window.location.protocol,
+                    'Host: ' + location.host,
+                    'Pathname: ' + location.pathname,
+                    'Search: ' + (location.search || '(geen query params)'),
+                    'Hash: ' + (location.hash || '(geen hash)'),
+                    '',
+                    '--- Raw Data ---',
+                    JSON.stringify(location, null, 2)
+                ].join('\n');
+
+                document.getElementById('locationOutput').textContent = output;
             });
         }
 
@@ -342,7 +356,10 @@
 
             // Location
             window.stqry.location.get(function(location) {
-                output.textContent += '✓ Location: ' + location.pathname + '\n';
+                output.textContent += '✓ Location: ' + location.pathname;
+                if (location.search) output.textContent += location.search;
+                if (location.hash) output.textContent += location.hash;
+                output.textContent += '\n';
             });
 
             // Utils
