@@ -125,11 +125,16 @@
 
                 // Check of de key bestaat en toon de waarde
                 if (value) {
+                    // Als value een object is, converteer naar JSON voor weergave
+                    const displayValue = typeof value === 'object'
+                        ? JSON.stringify(value, null, 2)
+                        : value;
+
                     displayDiv.innerHTML = `
                         <div class="cookie-value">
                             <strong>Data gevonden!</strong><br><br>
                             <strong>Key:</strong> testData<br>
-                            <strong>Waarde:</strong> ${escapeHtml(value)}
+                            <strong>Waarde:</strong> <pre style="margin: 10px 0; white-space: pre-wrap;">${escapeHtml(displayValue)}</pre>
                         </div>
                     `;
                 } else {
