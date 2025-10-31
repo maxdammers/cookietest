@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cookie Test - Pagina 2 (Read Cookie)</title>
+    <title>STQRY Storage Test - Pagina 2 (Read Data)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -79,98 +79,116 @@
 </head>
 <body>
     <div class="container">
-        <h1>Cookie Test - Pagina 2</h1>
-        <p>Deze pagina leest de cookie die op pagina 1 is ingesteld.</p>
+        <h1>STQRY Storage Test - Pagina 2</h1>
+        <p>Deze pagina leest de data die op pagina 1 is opgeslagen via de STQRY Storage Bridge.</p>
 
-        <div id="cookieDisplay">
-            <!-- Cookie waarde wordt hier getoond -->
+        <div id="dataDisplay">
+            <!-- Data waarde wordt hier getoond -->
         </div>
 
         <div>
-            <button onclick="readCookie()">Cookie Opnieuw Uitlezen</button>
-            <button class="delete" onclick="deleteCookie()">Cookie Verwijderen</button>
+            <button onclick="readData()">Data Opnieuw Uitlezen</button>
+            <button class="delete" onclick="deleteData()">Data Verwijderen</button>
+            <button onclick="clearAllData()" style="background-color: #ff6b6b;">Alles Wissen</button>
             <br><br>
             <a href="page1.html">← Terug naar Pagina 1</a>
         </div>
 
         <div class="info">
-            <strong>Info:</strong> Deze pagina zoekt naar een cookie met de naam <code>testCookie</code>.
-            Als de cookie bestaat, wordt de waarde hieronder getoond.
+            <strong>Info:</strong> Deze pagina gebruikt de STQRY Storage Bridge API.
+            Data wordt real-time gesynchroniseerd tussen tabs/pagina's via storage events.
+            <br><br>
+            <strong>Runtime:</strong> <code id="runtime">Detecteren...</code>
         </div>
 
         <div class="all-cookies">
-            <strong>Alle cookies in deze browser:</strong>
-            <div id="allCookies" style="margin-top: 10px;">
-                Geen cookies gevonden
+            <strong>Alle storage data:</strong>
+            <div id="allData" style="margin-top: 10px;">
+                Geen data gevonden
             </div>
         </div>
     </div>
 
+    <script src="stqry-bridge.js"></script>
     <script>
-        function getCookie(name) {
-            const nameEQ = name + "=";
-            const ca = document.cookie.split(';');
+        function readData() {
+            // Lees specifieke key
+            window.stqry.storage.get('testData', function(value) {
+                const displayDiv = document.getElementById('dataDisplay');
 
-            for(let i = 0; i < ca.length; i++) {
-                let c = ca[i];
-                while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-                if (c.indexOf(nameEQ) == 0) {
-                    return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                if (value) {
+                    displayDiv.innerHTML = `
+                        <div class="cookie-value">
+                            <strong>Data gevonden!</strong><br><br>
+                            <strong>Key:</strong> testData<br>
+                            <strong>Waarde:</strong> ${escapeHtml(value)}
+                        </div>
+                    `;
+                } else {
+                    displayDiv.innerHTML = `
+                        <div class="no-cookie">
+                            <strong>Geen data gevonden!</strong><br><br>
+                            Ga naar <a href="page1.html">Pagina 1</a> om data op te slaan.
+                        </div>
+                    `;
                 }
-            }
-            return null;
+
+                displayAllData();
+            });
         }
 
-        function readCookie() {
-            const cookieValue = getCookie('testCookie');
-            const displayDiv = document.getElementById('cookieDisplay');
-
-            if (cookieValue) {
-                displayDiv.innerHTML = `
-                    <div class="cookie-value">
-                        <strong>Cookie gevonden!</strong><br><br>
-                        <strong>Naam:</strong> testCookie<br>
-                        <strong>Waarde:</strong> ${cookieValue}
-                    </div>
-                `;
-            } else {
-                displayDiv.innerHTML = `
-                    <div class="no-cookie">
-                        <strong>Geen cookie gevonden!</strong><br><br>
-                        Ga naar <a href="page1.html">Pagina 1</a> om een cookie in te stellen.
-                    </div>
-                `;
-            }
-
-            displayAllCookies();
+        function deleteData() {
+            window.stqry.storage.remove('testData', function() {
+                alert('Data verwijderd!');
+                readData();
+            });
         }
 
-        function deleteCookie() {
-            // Verwijder de cookie door de vervaldatum in het verleden te zetten
-            document.cookie = "testCookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-
-            alert('Cookie verwijderd!');
-            readCookie();
-        }
-
-        function displayAllCookies() {
-            const cookies = document.cookie;
-            const allCookiesDiv = document.getElementById('allCookies');
-
-            if (cookies) {
-                // Splits cookies en toon ze op aparte regels
-                const cookieArray = cookies.split(';').map(c => c.trim());
-                allCookiesDiv.innerHTML = cookieArray.join('<br>');
-            } else {
-                allCookiesDiv.textContent = 'Geen cookies gevonden';
+        function clearAllData() {
+            if (confirm('Weet je zeker dat je alle data wilt wissen?')) {
+                window.stqry.storage.clear(function() {
+                    alert('Alle data gewist!');
+                    readData();
+                });
             }
         }
 
-        // Lees cookie bij laden van de pagina
-        readCookie();
+        function displayAllData() {
+            window.stqry.storage.get(null, function(data) {
+                const allDataDiv = document.getElementById('allData');
+
+                if (data && Object.keys(data).length > 0) {
+                    allDataDiv.innerHTML = '<pre style="margin: 0;">' +
+                        escapeHtml(JSON.stringify(data, null, 2)) +
+                        '</pre>';
+                } else {
+                    allDataDiv.textContent = 'Geen data gevonden';
+                }
+            });
+        }
+
+        function displayRuntime() {
+            document.getElementById('runtime').textContent = window.stqryRuntime;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Luister naar storage updates van andere tabs/pagina's
+        window.addEventListener('stqryStorageUpdated', function(e) {
+            console.log('Storage updated van andere tab:', e.detail);
+            readData();
+        });
+
+        // Lees data bij laden van de pagina
+        displayRuntime();
+        readData();
 
         // Update elke 2 seconden
-        setInterval(readCookie, 2000);
+        setInterval(readData, 2000);
     </script>
 </body>
 </html>

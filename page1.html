@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cookie Test - Pagina 1 (Set Cookie)</title>
+    <title>STQRY Storage Test - Pagina 1 (Set Data)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -66,81 +66,102 @@
 </head>
 <body>
     <div class="container">
-        <h1>Cookie Test - Pagina 1</h1>
-        <p>Deze pagina zet een cookie met een waarde die je op pagina 2 kunt uitlezen.</p>
+        <h1>STQRY Storage Test - Pagina 1</h1>
+        <p>Deze pagina slaat data op via de STQRY Storage Bridge die je op pagina 2 kunt uitlezen.</p>
 
         <div>
-            <label for="cookieValue">Voer een waarde in voor de cookie:</label><br>
-            <input type="text" id="cookieValue" placeholder="Bijv: Hallo vanaf pagina 1!" value="Test waarde 123">
+            <label for="dataValue">Voer een waarde in voor de storage:</label><br>
+            <input type="text" id="dataValue" placeholder="Bijv: Hallo vanaf pagina 1!" value="Test waarde 123">
         </div>
 
         <div>
-            <label for="cookieDays">Geldigheid (dagen):</label><br>
-            <input type="number" id="cookieDays" value="7" min="1" max="365">
+            <label for="dataKey">Storage Key:</label><br>
+            <input type="text" id="dataKey" value="testData" placeholder="testData">
         </div>
 
-        <button onclick="setCookie()">Cookie Instellen</button>
+        <button onclick="setData()">Data Opslaan</button>
 
         <div id="successMessage" class="success">
-            Cookie succesvol ingesteld!
+            Data succesvol opgeslagen!
             <br><br>
-            <a href="page2.html">Ga naar Pagina 2 om de cookie te lezen →</a>
+            <a href="page2.html">Ga naar Pagina 2 om de data te lezen →</a>
         </div>
 
         <div class="info">
-            <strong>Info:</strong> Deze pagina zet een cookie met de naam <code>testCookie</code>.
-            De cookie wordt opgeslagen in je browser en kan op pagina 2 worden uitgelezen.
+            <strong>Info:</strong> Deze pagina gebruikt de STQRY Storage Bridge API (gebaseerd op postMessage).
+            Data wordt opgeslagen in localStorage en gesynchroniseerd via postMessage/storage events.
+            <br><br>
+            <strong>Runtime:</strong> <code id="runtime">Detecteren...</code>
         </div>
 
         <div style="margin-top: 20px;">
-            <strong>Huidige cookies:</strong>
-            <div id="currentCookies" style="margin-top: 10px; font-family: monospace; background-color: #f9f9f9; padding: 10px; border-radius: 4px;">
-                Geen cookies gevonden
+            <strong>Huidige storage data:</strong>
+            <div id="currentStorage" style="margin-top: 10px; font-family: monospace; background-color: #f9f9f9; padding: 10px; border-radius: 4px;">
+                Geen data gevonden
             </div>
         </div>
     </div>
 
+    <script src="stqry-bridge.js"></script>
     <script>
-        function setCookie() {
-            const value = document.getElementById('cookieValue').value;
-            const days = parseInt(document.getElementById('cookieDays').value);
+        function setData() {
+            const value = document.getElementById('dataValue').value;
+            const key = document.getElementById('dataKey').value;
 
             if (!value) {
                 alert('Voer eerst een waarde in!');
                 return;
             }
 
-            // Bereken vervaldatum
-            const date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            const expires = "expires=" + date.toUTCString();
-
-            // Zet de cookie
-            document.cookie = "testCookie=" + encodeURIComponent(value) + ";" + expires + ";path=/";
-
-            // Toon succesbericht
-            document.getElementById('successMessage').style.display = 'block';
-
-            // Update cookie display
-            displayCookies();
-        }
-
-        function displayCookies() {
-            const cookies = document.cookie;
-            const cookieDiv = document.getElementById('currentCookies');
-
-            if (cookies) {
-                cookieDiv.textContent = cookies;
-            } else {
-                cookieDiv.textContent = 'Geen cookies gevonden';
+            if (!key) {
+                alert('Voer een storage key in!');
+                return;
             }
+
+            // Sla data op via STQRY Storage API
+            const changeset = {};
+            changeset[key] = value;
+            changeset.timestamp = new Date().toISOString();
+
+            window.stqry.storage.set(changeset, function() {
+                console.log('Data opgeslagen!');
+
+                // Toon succesbericht
+                document.getElementById('successMessage').style.display = 'block';
+
+                // Update storage display
+                displayStorage();
+            });
         }
 
-        // Toon huidige cookies bij laden
-        displayCookies();
+        function displayStorage() {
+            window.stqry.storage.get(null, function(data) {
+                const storageDiv = document.getElementById('currentStorage');
 
-        // Update cookie display elke 2 seconden
-        setInterval(displayCookies, 2000);
+                if (data && Object.keys(data).length > 0) {
+                    storageDiv.textContent = JSON.stringify(data, null, 2);
+                } else {
+                    storageDiv.textContent = 'Geen data gevonden';
+                }
+            });
+        }
+
+        function displayRuntime() {
+            document.getElementById('runtime').textContent = window.stqryRuntime;
+        }
+
+        // Luister naar storage updates
+        window.addEventListener('stqryStorageUpdated', function(e) {
+            console.log('Storage updated:', e.detail);
+            displayStorage();
+        });
+
+        // Toon runtime en storage bij laden
+        displayRuntime();
+        displayStorage();
+
+        // Update storage display elke 2 seconden
+        setInterval(displayStorage, 2000);
     </script>
 </body>
 </html>
