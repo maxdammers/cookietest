@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STQRY Bridge Test</title>
+    <title>Navigatie Test</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
     <script src="stqry-bridge.js"></script>
     <style>
@@ -39,166 +39,115 @@
             margin-bottom: 20px;
         }
         .section h2 {
-            font-size: 1.2rem;
+            font-size: 1rem;
             margin-bottom: 15px;
-            border-bottom: 2px solid #FEC93B;
-            padding-bottom: 5px;
+            color: #666;
         }
         .btn {
+            display: block;
+            width: 100%;
             background-color: #FEC93B;
             color: #000000;
             border: none;
-            padding: 10px 20px;
-            font-size: 0.9rem;
+            padding: 15px 20px;
+            font-size: 1rem;
             font-weight: 600;
             border-radius: 4px;
             cursor: pointer;
-            margin: 5px;
+            margin-bottom: 10px;
             transition: opacity 0.2s;
         }
         .btn:hover {
             opacity: 0.8;
-        }
-        .btn-back {
-            background-color: #333;
-            color: #fff;
-        }
-        .btn-close {
-            background-color: #e74c3c;
-            color: #fff;
         }
         .output {
             background-color: #fff;
             border: 1px solid #ddd;
             padding: 15px;
             border-radius: 4px;
-            margin-top: 10px;
+            margin-top: 15px;
             font-family: monospace;
             font-size: 0.85rem;
             white-space: pre-wrap;
-            max-height: 200px;
-            overflow-y: auto;
-        }
-        .nav-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>🔌 STQRY Bridge Test</h1>
+    <h1>🧪 Navigatie Test</h1>
     <div class="runtime-badge" id="runtimeBadge">Loading...</div>
 
-    <div class="nav-buttons">
-        <button class="btn btn-back" onclick="stqry.location.back()">← Terug</button>
-        <button class="btn btn-close" onclick="stqry.location.close()">✕ Sluiten</button>
-        <button class="btn" onclick="navigateTo('page1.html')">Naar Codebreaker</button>
+    <div class="section">
+        <h2>Test 1: stqry.location.set()</h2>
+        <button class="btn" onclick="test1()">stqry.location.set('page1.html')</button>
     </div>
 
     <div class="section">
-        <h2>📍 Location API</h2>
-        <button class="btn" onclick="testLocationGet()">Get Location</button>
-        <div class="output" id="locationOutput">Klik op een knop om te testen...</div>
+        <h2>Test 2: window.location.href</h2>
+        <button class="btn" onclick="test2()">window.location.href = 'page1.html'</button>
     </div>
 
     <div class="section">
-        <h2>💾 Storage API</h2>
-        <button class="btn" onclick="testStorageSet()">Set Data</button>
-        <button class="btn" onclick="testStorageGet()">Get Data</button>
-        <button class="btn" onclick="testStorageClear()">Clear Data</button>
-        <div class="output" id="storageOutput">Klik op een knop om te testen...</div>
+        <h2>Test 3: window.open()</h2>
+        <button class="btn" onclick="test3()">window.open('page1.html', '_self')</button>
     </div>
 
     <div class="section">
-        <h2>👤 User API</h2>
-        <button class="btn" onclick="testUserGet()">Get User</button>
-        <div class="output" id="userOutput">Klik op een knop om te testen...</div>
+        <h2>Test 4: Normale link</h2>
+        <a class="btn" href="page1.html" style="text-align: center; text-decoration: none;">Normale &lt;a href&gt; link</a>
     </div>
 
     <div class="section">
-        <h2>📱 Device API</h2>
-        <button class="btn" onclick="testDeviceGet()">Get Device Info</button>
-        <div class="output" id="deviceOutput">Klik op een knop om te testen...</div>
+        <h2>Test 5: history.back()</h2>
+        <button class="btn" onclick="test5()">window.history.back()</button>
     </div>
 
-    <div class="section">
-        <h2>🌐 Language API</h2>
-        <button class="btn" onclick="testLanguageGet()">Get Language</button>
-        <button class="btn" onclick="testLanguageSet('nl')">Set NL</button>
-        <button class="btn" onclick="testLanguageSet('en')">Set EN</button>
-        <div class="output" id="languageOutput">Klik op een knop om te testen...</div>
-    </div>
+    <div class="output" id="output">Klik op een knop om te testen...<br>Resultaten verschijnen hier.</div>
 
     <script>
-        // Toon runtime mode
-        document.getElementById('runtimeBadge').textContent = 'Runtime: ' + stqry.utils.getRuntime();
+        var output = document.getElementById('output');
 
-        // Navigatie met debug
-        function navigateTo(url) {
-            console.log('navigateTo called with:', url);
-            console.log('Runtime:', stqry.utils.getRuntime());
-            stqry.location.set(url, function() {
-                console.log('Navigation callback fired');
+        // Toon runtime
+        var runtime = stqry.utils.getRuntime();
+        document.getElementById('runtimeBadge').textContent = 'Runtime: ' + runtime;
+        output.textContent = 'Runtime gedetecteerd: ' + runtime + '\n\n';
+
+        function log(msg) {
+            output.textContent += msg + '\n';
+            console.log(msg);
+        }
+
+        function test1() {
+            log('Test 1: stqry.location.set("page1.html")');
+            stqry.location.set('page1.html', function() {
+                log('- Callback fired');
             });
         }
 
-        // Location tests
-        function testLocationGet() {
-            stqry.location.get(function(location) {
-                document.getElementById('locationOutput').textContent = JSON.stringify(location, null, 2);
-            });
+        function test2() {
+            log('Test 2: window.location.href = "page1.html"');
+            try {
+                window.location.href = 'page1.html';
+            } catch(e) {
+                log('- Error: ' + e.message);
+            }
         }
 
-        // Storage tests
-        function testStorageSet() {
-            var testData = {
-                testKey: 'Hello STQRY!',
-                timestamp: new Date().toISOString(),
-                number: 42
-            };
-            stqry.storage.set(testData, function() {
-                document.getElementById('storageOutput').textContent = 'Data opgeslagen:\n' + JSON.stringify(testData, null, 2);
-            });
+        function test3() {
+            log('Test 3: window.open("page1.html", "_self")');
+            try {
+                window.open('page1.html', '_self');
+            } catch(e) {
+                log('- Error: ' + e.message);
+            }
         }
 
-        function testStorageGet() {
-            stqry.storage.get(null, function(data) {
-                document.getElementById('storageOutput').textContent = 'Opgehaalde data:\n' + JSON.stringify(data, null, 2);
-            });
-        }
-
-        function testStorageClear() {
-            stqry.storage.clear(function() {
-                document.getElementById('storageOutput').textContent = 'Storage gewist!';
-            });
-        }
-
-        // User tests
-        function testUserGet() {
-            stqry.user.get(function(user) {
-                document.getElementById('userOutput').textContent = JSON.stringify(user, null, 2);
-            });
-        }
-
-        // Device tests
-        function testDeviceGet() {
-            stqry.device.get(function(device) {
-                document.getElementById('deviceOutput').textContent = JSON.stringify(device, null, 2);
-            });
-        }
-
-        // Language tests
-        function testLanguageGet() {
-            stqry.language.get(function(lang) {
-                document.getElementById('languageOutput').textContent = 'Huidige taal: ' + lang;
-            });
-        }
-
-        function testLanguageSet(lang) {
-            stqry.language.set(lang, function() {
-                document.getElementById('languageOutput').textContent = 'Taal ingesteld op: ' + lang;
-            });
+        function test5() {
+            log('Test 5: window.history.back()');
+            try {
+                window.history.back();
+            } catch(e) {
+                log('- Error: ' + e.message);
+            }
         }
     </script>
 </body>
