@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagina 1</title>
+    <title>Codebreaker</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * {
@@ -23,33 +23,188 @@
             padding: 20px;
         }
         h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 600;
-            margin-bottom: 20px;
-            color: #000000;
+            margin-bottom: 10px;
         }
-        p {
-            font-size: 1.2rem;
+        .subtitle {
             margin-bottom: 30px;
+            color: #666;
+        }
+        .game-container {
+            background-color: #f5f5f5;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .slots {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .slot {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #ddd;
+            border: 3px solid #999;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .slot:hover {
+            transform: scale(1.1);
+        }
+        .colors {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        .color-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: 3px solid #333;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .color-btn:hover {
+            transform: scale(1.15);
+        }
+        .color-btn.red { background-color: #e74c3c; }
+        .color-btn.green { background-color: #27ae60; }
+        .color-btn.blue { background-color: #3498db; }
+        .color-btn.yellow { background-color: #FEC93B; }
+        .color-btn.purple { background-color: #9b59b6; }
+        .color-btn.orange { background-color: #e67e22; }
+
+        .btn {
+            background-color: #FEC93B;
+            color: #000000;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+            transition: opacity 0.2s;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .message {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            min-height: 30px;
+        }
+        .message.win {
+            color: #27ae60;
+        }
+        .message.lose {
+            color: #e74c3c;
+        }
+        .attempts {
+            margin-top: 15px;
+            color: #666;
         }
         a {
             display: inline-block;
-            background-color: #FEC93B;
-            color: #000000;
+            margin-top: 30px;
+            color: #000;
             text-decoration: none;
-            padding: 12px 24px;
-            font-weight: 600;
-            border-radius: 4px;
-            transition: opacity 0.2s;
-        }
-        a:hover {
-            opacity: 0.8;
+            border-bottom: 2px solid #FEC93B;
         }
     </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p>Dit is pagina 1.</p>
+    <h1>🔐 Codebreaker</h1>
+    <p class="subtitle">Kraak de code! Kies 3 kleuren.</p>
+
+    <div class="game-container">
+        <div class="slots">
+            <div class="slot" id="slot0" onclick="clearSlot(0)"></div>
+            <div class="slot" id="slot1" onclick="clearSlot(1)"></div>
+            <div class="slot" id="slot2" onclick="clearSlot(2)"></div>
+        </div>
+
+        <div class="colors">
+            <div class="color-btn red" onclick="selectColor('red', '#e74c3c')"></div>
+            <div class="color-btn green" onclick="selectColor('green', '#27ae60')"></div>
+            <div class="color-btn blue" onclick="selectColor('blue', '#3498db')"></div>
+            <div class="color-btn yellow" onclick="selectColor('yellow', '#FEC93B')"></div>
+            <div class="color-btn purple" onclick="selectColor('purple', '#9b59b6')"></div>
+            <div class="color-btn orange" onclick="selectColor('orange', '#e67e22')"></div>
+        </div>
+
+        <div>
+            <button class="btn" onclick="checkCode()">Controleer</button>
+            <button class="btn" onclick="resetGame()">Reset</button>
+        </div>
+
+        <div class="message" id="message"></div>
+        <div class="attempts" id="attempts">Pogingen: 0</div>
+    </div>
+
     <a href="page2.html">Ga naar pagina 2</a>
+
+    <script>
+        const solution = ['red', 'green', 'blue'];
+        let currentSlot = 0;
+        let selectedColors = [null, null, null];
+        let attempts = 0;
+
+        function selectColor(color, hex) {
+            if (currentSlot < 3) {
+                selectedColors[currentSlot] = color;
+                document.getElementById('slot' + currentSlot).style.backgroundColor = hex;
+                currentSlot++;
+            }
+        }
+
+        function clearSlot(index) {
+            selectedColors[index] = null;
+            document.getElementById('slot' + index).style.backgroundColor = '#ddd';
+            currentSlot = index;
+        }
+
+        function checkCode() {
+            if (selectedColors.includes(null)) {
+                document.getElementById('message').textContent = 'Vul alle 3 de slots!';
+                document.getElementById('message').className = 'message';
+                return;
+            }
+
+            attempts++;
+            document.getElementById('attempts').textContent = 'Pogingen: ' + attempts;
+
+            let correct = 0;
+            for (let i = 0; i < 3; i++) {
+                if (selectedColors[i] === solution[i]) {
+                    correct++;
+                }
+            }
+
+            if (correct === 3) {
+                document.getElementById('message').textContent = '🎉 Gefeliciteerd! Code gekraakt!';
+                document.getElementById('message').className = 'message win';
+            } else {
+                document.getElementById('message').textContent = correct + ' van de 3 kleuren staan op de juiste plek';
+                document.getElementById('message').className = 'message lose';
+            }
+        }
+
+        function resetGame() {
+            currentSlot = 0;
+            selectedColors = [null, null, null];
+            for (let i = 0; i < 3; i++) {
+                document.getElementById('slot' + i).style.backgroundColor = '#ddd';
+            }
+            document.getElementById('message').textContent = '';
+            document.getElementById('message').className = 'message';
+        }
+    </script>
 </body>
 </html>
