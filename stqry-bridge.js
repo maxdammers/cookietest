@@ -563,6 +563,47 @@
       },
 
       /**
+       * Ga terug naar vorige pagina
+       *
+       * @param {Function} callback - Optionele callback
+       *
+       * @example
+       * stqry.location.back();
+       */
+      back: function(callback) {
+        if (window.stqryRuntime === 'NoRuntime') {
+          window.history.back();
+          if (callback) callback();
+          return;
+        }
+
+        callApp('location.back', {}, callback);
+      },
+
+      /**
+       * Sluit de huidige view/webview
+       *
+       * @param {Function} callback - Optionele callback
+       *
+       * @example
+       * stqry.location.close();
+       */
+      close: function(callback) {
+        if (window.stqryRuntime === 'NoRuntime') {
+          // In browser: probeer window te sluiten of ga terug
+          window.close();
+          // Fallback als window.close() niet werkt
+          if (!window.closed) {
+            window.history.back();
+          }
+          if (callback) callback();
+          return;
+        }
+
+        callApp('location.close', {}, callback);
+      },
+
+      /**
        * Haal huidige locatie/route op
        *
        * @param {Function} callback - Functie die wordt aangeroepen met locatie info

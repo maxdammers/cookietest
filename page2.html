@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pagina 2</title>
+    <title>STQRY Bridge Test</title>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <script src="stqry-bridge.js"></script>
     <style>
         * {
             margin: 0;
@@ -16,40 +17,180 @@
             background-color: #ffffff;
             color: #000000;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
             padding: 20px;
         }
         h1 {
-            font-size: 3rem;
+            font-size: 2rem;
             font-weight: 600;
-            margin-bottom: 20px;
-            color: #000000;
+            margin-bottom: 10px;
         }
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 30px;
-        }
-        a {
+        .runtime-badge {
             display: inline-block;
             background-color: #FEC93B;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+        .section {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #FEC93B;
+            padding-bottom: 5px;
+        }
+        .btn {
+            background-color: #FEC93B;
             color: #000000;
-            text-decoration: none;
-            padding: 12px 24px;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9rem;
             font-weight: 600;
             border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
             transition: opacity 0.2s;
         }
-        a:hover {
+        .btn:hover {
             opacity: 0.8;
+        }
+        .btn-back {
+            background-color: #333;
+            color: #fff;
+        }
+        .btn-close {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+        .output {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Hello World!</h1>
-    <p>Dit is pagina 2.</p>
-    <a href="page1.html">Ga naar pagina 1</a>
+    <h1>🔌 STQRY Bridge Test</h1>
+    <div class="runtime-badge" id="runtimeBadge">Loading...</div>
+
+    <div class="nav-buttons">
+        <button class="btn btn-back" onclick="stqry.location.back()">← Terug</button>
+        <button class="btn btn-close" onclick="stqry.location.close()">✕ Sluiten</button>
+        <button class="btn" onclick="stqry.location.set('page1.html')">Naar Codebreaker</button>
+    </div>
+
+    <div class="section">
+        <h2>📍 Location API</h2>
+        <button class="btn" onclick="testLocationGet()">Get Location</button>
+        <div class="output" id="locationOutput">Klik op een knop om te testen...</div>
+    </div>
+
+    <div class="section">
+        <h2>💾 Storage API</h2>
+        <button class="btn" onclick="testStorageSet()">Set Data</button>
+        <button class="btn" onclick="testStorageGet()">Get Data</button>
+        <button class="btn" onclick="testStorageClear()">Clear Data</button>
+        <div class="output" id="storageOutput">Klik op een knop om te testen...</div>
+    </div>
+
+    <div class="section">
+        <h2>👤 User API</h2>
+        <button class="btn" onclick="testUserGet()">Get User</button>
+        <div class="output" id="userOutput">Klik op een knop om te testen...</div>
+    </div>
+
+    <div class="section">
+        <h2>📱 Device API</h2>
+        <button class="btn" onclick="testDeviceGet()">Get Device Info</button>
+        <div class="output" id="deviceOutput">Klik op een knop om te testen...</div>
+    </div>
+
+    <div class="section">
+        <h2>🌐 Language API</h2>
+        <button class="btn" onclick="testLanguageGet()">Get Language</button>
+        <button class="btn" onclick="testLanguageSet('nl')">Set NL</button>
+        <button class="btn" onclick="testLanguageSet('en')">Set EN</button>
+        <div class="output" id="languageOutput">Klik op een knop om te testen...</div>
+    </div>
+
+    <script>
+        // Toon runtime mode
+        document.getElementById('runtimeBadge').textContent = 'Runtime: ' + stqry.utils.getRuntime();
+
+        // Location tests
+        function testLocationGet() {
+            stqry.location.get(function(location) {
+                document.getElementById('locationOutput').textContent = JSON.stringify(location, null, 2);
+            });
+        }
+
+        // Storage tests
+        function testStorageSet() {
+            var testData = {
+                testKey: 'Hello STQRY!',
+                timestamp: new Date().toISOString(),
+                number: 42
+            };
+            stqry.storage.set(testData, function() {
+                document.getElementById('storageOutput').textContent = 'Data opgeslagen:\n' + JSON.stringify(testData, null, 2);
+            });
+        }
+
+        function testStorageGet() {
+            stqry.storage.get(null, function(data) {
+                document.getElementById('storageOutput').textContent = 'Opgehaalde data:\n' + JSON.stringify(data, null, 2);
+            });
+        }
+
+        function testStorageClear() {
+            stqry.storage.clear(function() {
+                document.getElementById('storageOutput').textContent = 'Storage gewist!';
+            });
+        }
+
+        // User tests
+        function testUserGet() {
+            stqry.user.get(function(user) {
+                document.getElementById('userOutput').textContent = JSON.stringify(user, null, 2);
+            });
+        }
+
+        // Device tests
+        function testDeviceGet() {
+            stqry.device.get(function(device) {
+                document.getElementById('deviceOutput').textContent = JSON.stringify(device, null, 2);
+            });
+        }
+
+        // Language tests
+        function testLanguageGet() {
+            stqry.language.get(function(lang) {
+                document.getElementById('languageOutput').textContent = 'Huidige taal: ' + lang;
+            });
+        }
+
+        function testLanguageSet(lang) {
+            stqry.language.set(lang, function() {
+                document.getElementById('languageOutput').textContent = 'Taal ingesteld op: ' + lang;
+            });
+        }
+    </script>
 </body>
 </html>
