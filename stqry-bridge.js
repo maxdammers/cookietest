@@ -110,7 +110,7 @@
       message.callbackId = callbackId;
       appCallbacks[callbackId] = callback;
 
-      // Stel timeout in: als parent niet binnen 500ms reageert, gebruik fallback
+      // Stel timeout in: als parent niet binnen 100ms reageert, gebruik fallback
       if (fallback) {
         setTimeout(function() {
           // Als callback nog steeds bestaat, is er geen response gekomen
@@ -119,7 +119,7 @@
             console.warn('Parent not responding for action:', action, '- using fallback');
             fallback();
           }
-        }, 500);
+        }, 100);
       }
     }
 
