@@ -187,12 +187,36 @@
                 }
             }
 
+            // Tel kleuren op verkeerde plek
+            let wrongPosition = 0;
+            let solutionCopy = [...solution];
+            let selectedCopy = [...selectedColors];
+
+            // Verwijder eerst de correcte posities
+            for (let i = 0; i < 3; i++) {
+                if (selectedCopy[i] === solutionCopy[i]) {
+                    solutionCopy[i] = null;
+                    selectedCopy[i] = null;
+                }
+            }
+
+            // Tel kleuren die wel voorkomen maar op verkeerde plek
+            for (let i = 0; i < 3; i++) {
+                if (selectedCopy[i] !== null) {
+                    let index = solutionCopy.indexOf(selectedCopy[i]);
+                    if (index !== -1) {
+                        wrongPosition++;
+                        solutionCopy[index] = null;
+                    }
+                }
+            }
+
             if (correct === 3) {
                 document.getElementById('message').textContent = '🎉 Gefeliciteerd! Code gekraakt!';
                 document.getElementById('message').className = 'message win';
                 document.getElementById('nextBtn').classList.add('show');
             } else {
-                document.getElementById('message').textContent = correct + ' van de 3 kleuren staan op de juiste plek';
+                document.getElementById('message').textContent = '✓ ' + correct + ' juiste plek, ○ ' + wrongPosition + ' verkeerde plek';
                 document.getElementById('message').className = 'message lose';
             }
         }
