@@ -90,13 +90,13 @@
     <div class="section">
         <h2>🔗 Linking (officiële STQRY API)</h2>
         <button class="btn" onclick="testLinkingExternal()">linking.openExternal - Open website</button>
-        <button class="btn" onclick="testOpenInternal({id: 57959, type: 'collection'})">id: 57959, type: collection</button>
-        <button class="btn" onclick="testOpenInternal({id: 57959, type: 'tour'})">id: 57959, type: tour</button>
-        <button class="btn" onclick="testOpenInternal({id: 57959, type: 'map'})">id: 57959, type: map</button>
-        <button class="btn" onclick="testOpenInternal({collectionId: 57959})">collectionId: 57959</button>
-        <button class="btn" onclick="testOpenInternal({collectionId: 57959, collectionAccountId: 17706})">+ accountId: 17706</button>
-        <button class="btn" onclick="testOpenInternal({collectionId: 57959, itemId: 395298})">+ itemId: 395298</button>
-        <button class="btn" onclick="testOpenInternal({collectionId: 57959, collectionAccountId: 17706, itemId: 395298})">alle IDs</button>
+        <button class="btn" onclick="testOpenInternal({params: {subtype: 'tour', id: 57959}})">tour 57959</button>
+        <button class="btn" onclick="testOpenInternal({params: {subtype: 'list', id: 57959}})">list 57959</button>
+        <button class="btn" onclick="testOpenInternal({params: {subtype: 'story', id: 395298}})">story 395298</button>
+        <button class="btn" onclick="testOpenInternal({params: {subtype: 'web', id: 395298}})">web 395298</button>
+        <button class="btn" onclick="testOpenInternal({params: {subtype: 'menu', id: 57959}})">menu 57959</button>
+        <button class="btn" onclick="testOpenInternal({params: {subtype: 'map', id: 57959}})">map 57959</button>
+        <button class="btn" onclick="testOpenInternal({params: {subtype: 'collection', id: 57959}})">collection 57959</button>
     </div>
 
 
