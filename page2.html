@@ -90,32 +90,13 @@
     <div class="section">
         <h2>🔗 Linking (officiële STQRY API)</h2>
         <button class="btn" onclick="testLinkingExternal()">linking.openExternal - Open website</button>
-        <button class="btn" onclick="testLinkingInternal('screen', 'tour')">linking.openInternal - Tour screen</button>
-        <button class="btn" onclick="testLinkingInternal('collection', 'list')">linking.openInternal - Collection list</button>
+        <button class="btn" onclick="testOpenInternal({id: 57959, type: 'collection'})">openInternal collection 57959</button>
+        <button class="btn" onclick="testOpenInternal({id: 395298, type: 'item'})">openInternal item 395298</button>
+        <button class="btn" onclick="testOpenInternal({collectionId: 57959, type: 'tour'})">openInternal tour (collectionId)</button>
+        <button class="btn" onclick="testOpenInternal({collectionId: 57959, type: 'map'})">openInternal map</button>
+        <button class="btn" onclick="testOpenInternal({collectionId: 57959, itemId: 395298})">openInternal met beide IDs</button>
     </div>
 
-    <div class="section">
-        <h2>🗺️ showScanner tests</h2>
-        <button class="btn btn-nav" onclick="testAction('showScanner')">showScanner (geen data)</button>
-        <button class="btn btn-nav" onclick="testAction('showScanner', {})">showScanner {}</button>
-        <button class="btn btn-nav" onclick="testAction('showScanner', {tourId: 57959})">showScanner {tourId}</button>
-        <button class="btn btn-nav" onclick="testAction('scanner.show')">scanner.show</button>
-    </div>
-
-    <div class="section">
-        <h2>📍 parsePath tests</h2>
-        <button class="btn btn-nav" onclick="testAction('parsePath', '/tour/57959')">parsePath /tour/57959</button>
-        <button class="btn btn-nav" onclick="testAction('parsePath', '/tour/57959/map')">parsePath /tour/57959/map</button>
-        <button class="btn btn-nav" onclick="testAction('parsePath', {path: '/tour/57959'})">parsePath {path}</button>
-        <button class="btn btn-nav" onclick="testAction('navigation.parsePath', '/tour/57959')">navigation.parsePath</button>
-    </div>
-
-    <div class="section">
-        <h2>📂 Fallback navigatie</h2>
-        <button class="btn" onclick="testWindowLocation()">window.location.href</button>
-        <button class="btn" onclick="testHistoryBack()">history.back()</button>
-        <button class="btn" onclick="testNormalLink()">Normale link naar page1</button>
-    </div>
 
     <div class="output" id="output">Runtime wordt geladen...</div>
 
@@ -170,35 +151,11 @@
             });
         }
 
-        // Officiële STQRY linking.openInternal
-        function testLinkingInternal(type, subtype) {
-            callStqryApp('linking.openInternal', {
-                id: 1,
-                type: type,
-                subtype: subtype
-            });
+        // Test linking.openInternal met echte IDs
+        function testOpenInternal(data) {
+            callStqryApp('linking.openInternal', data);
         }
 
-        // Generic action test
-        function testAction(action, data) {
-            callStqryApp(action, data || {});
-        }
-
-        // Fallbacks
-        function testWindowLocation() {
-            log('→ window.location.href = page1.html');
-            window.location.href = 'page1.html';
-        }
-
-        function testHistoryBack() {
-            log('→ history.back()');
-            window.history.back();
-        }
-
-        function testNormalLink() {
-            log('→ Navigating via link...');
-            window.location.href = 'page1.html';
-        }
     </script>
 </body>
 </html>
