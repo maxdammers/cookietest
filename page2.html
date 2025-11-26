@@ -95,9 +95,13 @@
     </div>
 
     <div class="section">
-        <h2>🗺️ Interne schermen</h2>
-        <button class="btn btn-nav" onclick="testOpenMap()">Open Kaart</button>
-        <button class="btn btn-nav" onclick="testOpenHome()">Open Home</button>
+        <h2>🗺️ Kaart navigatie tests</h2>
+        <button class="btn btn-nav" onclick="testAction('navigation.map')">navigation.map</button>
+        <button class="btn btn-nav" onclick="testAction('navigation.openMap')">navigation.openMap</button>
+        <button class="btn btn-nav" onclick="testAction('navigation.goToMap')">navigation.goToMap</button>
+        <button class="btn btn-nav" onclick="testAction('map.open')">map.open</button>
+        <button class="btn btn-nav" onclick="testAction('navigate', {screen: 'map'})">navigate {screen: map}</button>
+        <button class="btn btn-nav" onclick="testAction('navigation.navigate', {routeName: 'Map'})">navigation.navigate Map</button>
     </div>
 
     <div class="section">
@@ -169,23 +173,9 @@
             });
         }
 
-        // Probeer kaart te openen
-        function testOpenMap() {
-            // Probeer verschillende mogelijke acties
-            callStqryApp('navigation.openMap', {});
-            callStqryApp('linking.openInternal', {
-                type: 'screen',
-                subtype: 'map'
-            });
-        }
-
-        // Probeer home te openen
-        function testOpenHome() {
-            callStqryApp('navigation.openHome', {});
-            callStqryApp('linking.openInternal', {
-                type: 'screen',
-                subtype: 'home'
-            });
+        // Generic action test
+        function testAction(action, data) {
+            callStqryApp(action, data || {});
         }
 
         // Fallbacks
