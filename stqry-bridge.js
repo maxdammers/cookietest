@@ -559,7 +559,12 @@
         }
 
         // In IFrame/ReactNative: vraag parent om te navigeren
-        callApp('location.set', { url: url }, callback);
+        // Met fallback naar directe navigatie als parent niet reageert
+        callApp('location.set', { url: url }, callback, function() {
+          // Fallback: navigeer direct
+          window.location.href = url;
+          if (callback) callback();
+        });
       },
 
       /**
@@ -577,7 +582,11 @@
           return;
         }
 
-        callApp('location.back', {}, callback);
+        // Met fallback naar history.back() als parent niet reageert
+        callApp('location.back', {}, callback, function() {
+          window.history.back();
+          if (callback) callback();
+        });
       },
 
       /**
@@ -589,18 +598,23 @@
        * stqry.location.close();
        */
       close: function(callback) {
-        if (window.stqryRuntime === 'NoRuntime') {
-          // In browser: probeer window te sluiten of ga terug
+        var doClose = function() {
+          // Probeer window te sluiten of ga terug
           window.close();
           // Fallback als window.close() niet werkt
           if (!window.closed) {
             window.history.back();
           }
           if (callback) callback();
+        };
+
+        if (window.stqryRuntime === 'NoRuntime') {
+          doClose();
           return;
         }
 
-        callApp('location.close', {}, callback);
+        // Met fallback als parent niet reageert
+        callApp('location.close', {}, callback, doClose);
       },
 
       /**
