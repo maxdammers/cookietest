@@ -157,11 +157,18 @@
         let attempts = 0;
 
         function selectColor(color, hex) {
-            if (currentSlot < 3) {
-                selectedColors[currentSlot] = color;
-                document.getElementById('slot' + currentSlot).style.backgroundColor = hex;
-                currentSlot++;
+            // Reset slots als alle 3 gevuld zijn (na een check)
+            if (currentSlot >= 3) {
+                currentSlot = 0;
+                selectedColors = [null, null, null];
+                for (let i = 0; i < 3; i++) {
+                    document.getElementById('slot' + i).style.backgroundColor = '#ddd';
+                }
             }
+
+            selectedColors[currentSlot] = color;
+            document.getElementById('slot' + currentSlot).style.backgroundColor = hex;
+            currentSlot++;
         }
 
         function clearSlot(index) {
