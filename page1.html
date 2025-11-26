@@ -147,10 +147,25 @@
         <div class="message" id="message"></div>
         <div class="attempts" id="attempts">Pogingen: 0</div>
 
-        <a href="page2.html" class="btn btn-next" id="nextBtn">Volgende →</a>
+        <button class="btn btn-next" id="nextBtn" onclick="goBack()">← Terug naar tour</button>
     </div>
 
     <script>
+        // STQRY navigation
+        function goBack() {
+            var message = {
+                action: 'navigation.back',
+                version: 'v1',
+                data: {}
+            };
+            if (window.ReactNativeWebView) {
+                window.ReactNativeWebView.postMessage(JSON.stringify(message));
+            } else {
+                // Fallback voor browser
+                window.history.back();
+            }
+        }
+
         const solution = ['red', 'green', 'blue'];
         let currentSlot = 0;
         let selectedColors = [null, null, null];
