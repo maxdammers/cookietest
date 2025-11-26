@@ -93,7 +93,7 @@
     <div class="nav-buttons">
         <button class="btn btn-back" onclick="stqry.location.back()">← Terug</button>
         <button class="btn btn-close" onclick="stqry.location.close()">✕ Sluiten</button>
-        <button class="btn" onclick="stqry.location.set('page1.html')">Naar Codebreaker</button>
+        <button class="btn" onclick="navigateTo('page1.html')">Naar Codebreaker</button>
     </div>
 
     <div class="section">
@@ -133,6 +133,15 @@
     <script>
         // Toon runtime mode
         document.getElementById('runtimeBadge').textContent = 'Runtime: ' + stqry.utils.getRuntime();
+
+        // Navigatie met debug
+        function navigateTo(url) {
+            console.log('navigateTo called with:', url);
+            console.log('Runtime:', stqry.utils.getRuntime());
+            stqry.location.set(url, function() {
+                console.log('Navigation callback fired');
+            });
+        }
 
         // Location tests
         function testLocationGet() {
