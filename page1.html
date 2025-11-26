@@ -77,7 +77,6 @@
         .color-btn.blue { background-color: #3498db; }
         .color-btn.yellow { background-color: #FEC93B; }
         .color-btn.purple { background-color: #9b59b6; }
-        .color-btn.orange { background-color: #e67e22; }
 
         .btn {
             background-color: #FEC93B;
@@ -94,6 +93,15 @@
         .btn:hover {
             opacity: 0.8;
         }
+        .btn-next {
+            background-color: #27ae60;
+            color: #ffffff;
+            display: none;
+            margin-top: 15px;
+        }
+        .btn-next.show {
+            display: inline-block;
+        }
         .message {
             margin-top: 20px;
             font-size: 1.2rem;
@@ -109,13 +117,6 @@
         .attempts {
             margin-top: 15px;
             color: #666;
-        }
-        a {
-            display: inline-block;
-            margin-top: 30px;
-            color: #000;
-            text-decoration: none;
-            border-bottom: 2px solid #FEC93B;
         }
     </style>
 </head>
@@ -136,7 +137,6 @@
             <div class="color-btn blue" onclick="selectColor('blue', '#3498db')"></div>
             <div class="color-btn yellow" onclick="selectColor('yellow', '#FEC93B')"></div>
             <div class="color-btn purple" onclick="selectColor('purple', '#9b59b6')"></div>
-            <div class="color-btn orange" onclick="selectColor('orange', '#e67e22')"></div>
         </div>
 
         <div>
@@ -146,9 +146,9 @@
 
         <div class="message" id="message"></div>
         <div class="attempts" id="attempts">Pogingen: 0</div>
-    </div>
 
-    <a href="page2.html">Ga naar pagina 2</a>
+        <a href="page2.html" class="btn btn-next" id="nextBtn">Volgende →</a>
+    </div>
 
     <script>
         const solution = ['red', 'green', 'blue'];
@@ -190,6 +190,7 @@
             if (correct === 3) {
                 document.getElementById('message').textContent = '🎉 Gefeliciteerd! Code gekraakt!';
                 document.getElementById('message').className = 'message win';
+                document.getElementById('nextBtn').classList.add('show');
             } else {
                 document.getElementById('message').textContent = correct + ' van de 3 kleuren staan op de juiste plek';
                 document.getElementById('message').className = 'message lose';
@@ -204,6 +205,7 @@
             }
             document.getElementById('message').textContent = '';
             document.getElementById('message').className = 'message';
+            document.getElementById('nextBtn').classList.remove('show');
         }
     </script>
 </body>
