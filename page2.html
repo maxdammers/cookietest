@@ -95,13 +95,19 @@
     </div>
 
     <div class="section">
-        <h2>🗺️ Tour/Item navigatie</h2>
-        <button class="btn btn-nav" onclick="testAction('linking.openInternal', {id: 395298, type: 'screen', subtype: 'web'})">item 395298 (screen/web)</button>
-        <button class="btn btn-nav" onclick="testAction('linking.openInternal', {id: 395298, type: 'item'})">item 395298 (type: item)</button>
-        <button class="btn btn-nav" onclick="testAction('linking.openInternal', {itemId: 395298})">itemId: 395298</button>
-        <button class="btn btn-nav" onclick="testAction('linking.openInternal', {id: 57959, type: 'tour', itemId: 395298})">tour + item</button>
-        <button class="btn btn-nav" onclick="testAction('linking.openInternal', {url: '/tour/57959/item/395298'})">url: /tour/.../item/...</button>
-        <button class="btn btn-nav" onclick="testAction('linking.openInternal', {path: '/tour/57959/map'})">path: /tour/57959/map</button>
+        <h2>🗺️ showScanner tests</h2>
+        <button class="btn btn-nav" onclick="testAction('showScanner')">showScanner (geen data)</button>
+        <button class="btn btn-nav" onclick="testAction('showScanner', {})">showScanner {}</button>
+        <button class="btn btn-nav" onclick="testAction('showScanner', {tourId: 57959})">showScanner {tourId}</button>
+        <button class="btn btn-nav" onclick="testAction('scanner.show')">scanner.show</button>
+    </div>
+
+    <div class="section">
+        <h2>📍 parsePath tests</h2>
+        <button class="btn btn-nav" onclick="testAction('parsePath', '/tour/57959')">parsePath /tour/57959</button>
+        <button class="btn btn-nav" onclick="testAction('parsePath', '/tour/57959/map')">parsePath /tour/57959/map</button>
+        <button class="btn btn-nav" onclick="testAction('parsePath', {path: '/tour/57959'})">parsePath {path}</button>
+        <button class="btn btn-nav" onclick="testAction('navigation.parsePath', '/tour/57959')">navigation.parsePath</button>
     </div>
 
     <div class="section">
