@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STQRY Storage Test - Pagina 2 (Read Data)</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .cookie-value {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            font-size: 18px;
+            word-wrap: break-word;
+        }
+        .no-cookie {
+            margin: 20px 0;
+            padding: 20px;
+            background-color: #f8d7da;
+            border-left: 4px solid #dc3545;
+        }
+        button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            padding: 10px 20px;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        button.delete {
+            background-color: #dc3545;
+        }
+        button.delete:hover {
+            background-color: #c82333;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3fe;
+            border-left: 4px solid #2196F3;
+        }
+        a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .all-cookies {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>STQRY Storage Test - Pagina 2</h1>
+        <p>Deze pagina leest de data die op pagina 1 is opgeslagen via de STQRY Storage Bridge.</p>
+
+        <div id="dataDisplay">
+            <!-- Data waarde wordt hier getoond -->
+        </div>
+
+        <div>
+            <button onclick="readData()">Data Opnieuw Uitlezen</button>
+            <button class="delete" onclick="deleteData()">Data Verwijderen</button>
+            <button onclick="clearAllData()" style="background-color: #ff6b6b;">Alles Wissen</button>
+            <br><br>
+            <a href="page1.html">← Terug naar Pagina 1</a>
+        </div>
+
+        <div class="info">
+            <strong>Info:</strong> Deze pagina gebruikt de STQRY Storage Bridge API.
+            Data wordt real-time gesynchroniseerd tussen tabs/pagina's via storage events.
+            <br><br>
+            <strong>Runtime:</strong> <code id="runtime">Detecteren...</code>
+            <br><br>
+            <strong>💡 Tip:</strong> <a href="demo.html">Bekijk de complete API demo →</a>
+        </div>
+
+        <div class="all-cookies">
+            <strong>Alle storage data:</strong>
+            <div id="allData" style="margin-top: 10px;">
+                Geen data gevonden
+            </div>
+        </div>
+    </div>
+
+    <!-- Laad de STQRY Storage Bridge library -->
+    <script src="stqry-bridge.js"></script>
+    <script>
+        /**
+         * Lees de 'testData' key uit storage en toon deze in de UI
+         * Wordt aangeroepen bij page load en door de "Data Opnieuw Uitlezen" knop
+         */
+        function readData() {
+            // Lees specifieke key 'testData' uit de storage
+            window.stqry.storage.get('testData', function(value) {
+                const displayDiv = document.getElementById('dataDisplay');
+
+                // Check of de key bestaat en toon de waarde
+                if (value) {
+                    // Als value een object is, converteer naar JSON voor weergave
+                    const displayValue = typeof value === 'object'
+                        ? JSON.stringify(value, null, 2)
+                        : value;
+
+                    displayDiv.innerHTML = `
+                        <div class="cookie-value">
+                            <strong>Data gevonden!</strong><br><br>
+                            <strong>Key:</strong> testData<br>
+                            <strong>Waarde:</strong> <pre style="margin: 10px 0; white-space: pre-wrap;">${escapeHtml(displayValue)}</pre>
+                        </div>
+                    `;
+                } else {
+                    // Geen data gevonden: toon waarschuwing met link naar pagina 1
+                    displayDiv.innerHTML = `
+                        <div class="no-cookie">
+                            <strong>Geen data gevonden!</strong><br><br>
+                            Ga naar <a href="page1.html">Pagina 1</a> om data op te slaan.
+                        </div>
+                    `;
+                }
+
+                // Update ook de display van alle storage data
+                displayAllData();
+            });
+        }
+
+        /**
+         * Verwijder de 'testData' key uit storage
+         * Wordt aangeroepen door de "Data Verwijderen" knop
+         */
+        function deleteData() {
+            // Gebruik stqry.storage.remove() om een specifieke key te verwijderen
+            window.stqry.storage.remove('testData', function() {
+                alert('Data verwijderd!');
+                // Refresh de UI om de wijziging te tonen
+                readData();
+            });
+        }
+
+        /**
+         * Wis alle data uit storage (met confirmatie)
+         * Wordt aangeroepen door de "Alles Wissen" knop
+         */
+        function clearAllData() {
+            // Vraag om confirmatie voordat we alles wissen
+            if (confirm('Weet je zeker dat je alle data wilt wissen?')) {
+                // Gebruik stqry.storage.clear() om alle keys te verwijderen
+                window.stqry.storage.clear(function() {
+                    alert('Alle data gewist!');
+                    // Refresh de UI
+                    readData();
+                });
+            }
+        }
+
+        /**
+         * Toon alle storage data in een geformatteerd JSON blok
+         * Gebruikt stqry.storage.get() met null om alle keys op te halen
+         */
+        function displayAllData() {
+            // Haal alle data op (null = alle keys)
+            window.stqry.storage.get(null, function(data) {
+                const allDataDiv = document.getElementById('allData');
+
+                // Check of er data is en toon het als geformatteerde JSON in een <pre> tag
+                if (data && Object.keys(data).length > 0) {
+                    allDataDiv.innerHTML = '<pre style="margin: 0;">' +
+                        escapeHtml(JSON.stringify(data, null, 2)) +
+                        '</pre>';
+                } else {
+                    allDataDiv.textContent = 'Geen data gevonden';
+                }
+            });
+        }
+
+        /**
+         * Toon de gedetecteerde runtime mode in de UI
+         * Mogelijke waardes: 'NoRuntime', 'IFrame', 'ReactNative'
+         */
+        function displayRuntime() {
+            document.getElementById('runtime').textContent = window.stqryRuntime;
+        }
+
+        /**
+         * Escape HTML characters om XSS te voorkomen
+         * Zet alle HTML characters om naar HTML entities
+         *
+         * @param {string} text - De text om te escapen
+         * @returns {string} Escaped HTML string
+         */
+        function escapeHtml(text) {
+            // Gebruik de browser's ingebouwde HTML escaping via textContent
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        /**
+         * Luister naar storage updates van andere tabs/pagina's
+         * Het 'stqryStorageUpdated' event wordt gefired wanneer een andere tab
+         * data wijzigt via de STQRY Storage API (via storage events)
+         */
+        window.addEventListener('stqryStorageUpdated', function(e) {
+            console.log('Storage updated van andere tab:', e.detail);
+            // Refresh de data display om de nieuwe data te tonen
+            readData();
+        });
+
+        // ===== Initialisatie bij laden van de pagina =====
+
+        // Toon de runtime mode
+        displayRuntime();
+
+        // Lees en toon de data bij laden
+        readData();
+
+        // Poll elke 2 seconden voor updates (fallback naast de event listener)
+        // Dit zorgt ervoor dat we ook updates zien als het event om een of andere reden niet fired
+        setInterval(readData, 2000);
+    </script>
+</body>
+</html>
