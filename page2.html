@@ -95,13 +95,13 @@
     </div>
 
     <div class="section">
-        <h2>🗺️ Scanner / Kaart tests</h2>
-        <button class="btn btn-nav" onclick="testAction('showScanner')">showScanner</button>
-        <button class="btn btn-nav" onclick="testAction('scanner.show')">scanner.show</button>
-        <button class="btn btn-nav" onclick="testAction('navigation.showScanner')">navigation.showScanner</button>
-        <button class="btn btn-nav" onclick="testAction('scanner.open')">scanner.open</button>
-        <button class="btn btn-nav" onclick="testAction('openScanner')">openScanner</button>
-        <button class="btn btn-nav" onclick="testAction('app.showScanner')">app.showScanner</button>
+        <h2>🗺️ URL Path navigatie</h2>
+        <button class="btn btn-nav" onclick="testAction('navigation.navigate', {path: '/tour/57959'})">navigate /tour/57959</button>
+        <button class="btn btn-nav" onclick="testAction('navigation.navigate', {path: '/tour/57959/map'})">navigate /tour/57959/map</button>
+        <button class="btn btn-nav" onclick="testAction('linking.openInternal', {path: '/tour/57959'})">linking /tour/57959</button>
+        <button class="btn btn-nav" onclick="testAction('parsePath', {path: '/tour/57959/map'})">parsePath /map</button>
+        <button class="btn btn-nav" onclick="testAction('navigate', {path: '/map'})">navigate /map</button>
+        <button class="btn btn-nav" onclick="testAction('navigation.push', {routeName: 'Map', params: {tourId: 57959}})">push Map screen</button>
     </div>
 
     <div class="section">
