@@ -129,21 +129,20 @@ if (te === "v1" && H === "linking.openInternal") {
 }
 ```
 
-**Bekende subtypes:**
-| Subtype | Beschrijving |
-|---------|--------------|
-| `tour` | Tour overview pagina |
-| `map` | Kaart van tour |
-| `list` | Lijst weergave |
-| `story` | Story/artikel item |
-| `web` | Web content item |
-| `menu` | Menu weergave |
-| `collection` | Collectie |
+**Geteste subtypes:**
+| Subtype | Werkt? | Opmerkingen |
+|---------|--------|-------------|
+| `tour` | ✅ Ja | Opent als overlay/modal, toont tour start scherm |
+| `map` | ❌ Nee | Geen reactie |
+| `list` | ❓ | Niet getest |
+| `story` | ❌ Nee | Geen reactie (voor items) |
+| `web` | ❌ Nee | Geen reactie (voor items) |
+| `menu` | ❓ | Niet getest |
+| `collection` | ❓ | Niet getest |
 
-**Mogelijke extra parameters (nog te testen):**
-- `version` - Content versie nummer
-- `demo` - Demo mode (`?demo=true`)
-- `navigate` - Mogelijk om overlay te omzeilen?
+**Conclusie:** Alleen `subtype: 'tour'` lijkt te werken. Items en kaarten kunnen niet via deze API worden geopend.
+
+**Beperking:** Tours openen altijd als overlay, niet als navigatie. Er is geen manier gevonden om direct naar de kaart of een specifiek item te navigeren.
 
 ---
 
