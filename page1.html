@@ -140,7 +140,6 @@
         </div>
 
         <div>
-            <button class="btn" onclick="checkCode()">Controleer</button>
             <button class="btn" onclick="resetGame()">Reset</button>
         </div>
 
@@ -179,11 +178,18 @@
                 for (let i = 0; i < 3; i++) {
                     document.getElementById('slot' + i).style.backgroundColor = '#ddd';
                 }
+                document.getElementById('message').textContent = '';
+                document.getElementById('message').className = 'message';
             }
 
             selectedColors[currentSlot] = color;
             document.getElementById('slot' + currentSlot).style.backgroundColor = hex;
             currentSlot++;
+
+            // Auto-check bij derde kleur
+            if (currentSlot === 3) {
+                checkCode();
+            }
         }
 
         function clearSlot(index) {
