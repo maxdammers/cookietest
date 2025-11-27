@@ -240,12 +240,12 @@
             }
 
             if (correct === 3) {
-                document.getElementById('message').textContent = '🎉 Gefeliciteerd! Code gekraakt!';
+                document.getElementById('message').textContent = 'Code gekraakt!';
                 document.getElementById('message').className = 'message win';
                 document.getElementById('nextBtn').classList.add('show');
             } else {
-                document.getElementById('message').textContent = '✓ ' + correct + ' juiste plek, ○ ' + wrongPosition + ' verkeerde plek';
-                document.getElementById('message').className = 'message lose';
+                document.getElementById('message').textContent = correct + ' goed, ' + wrongPosition + ' misplaatst';
+                document.getElementById('message').className = 'message';
             }
         }
 
