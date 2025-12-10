@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Test - STQRY API</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <script src="stqry-bridge.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'IBM Plex Sans', sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .runtime-badge {
+            display: inline-block;
+            background-color: #FEC93B;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .section {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .section h2 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            color: #333;
+            font-weight: 600;
+        }
+        .btn {
+            display: block;
+            width: 100%;
+            background-color: #27ae60;
+            color: #ffffff;
+            border: none;
+            padding: 15px 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: opacity 0.2s;
+            text-align: left;
+        }
+        .btn:hover {
+            opacity: 0.85;
+        }
+        .btn-experimental {
+            background-color: #e67e22;
+        }
+        .btn-icon {
+            margin-right: 8px;
+        }
+        .btn-description {
+            font-size: 0.85rem;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-top: 4px;
+        }
+        .badge {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.3);
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            margin-left: 8px;
+        }
+        .output {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 4px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .info-box {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <h1>Navigation Test</h1>
+    <div class="runtime-badge" id="runtimeBadge">Loading...</div>
+
+    <div class="info-box">
+        Test the STQRY navigation API with these buttons. Some actions may only work within the STQRY app environment.
+    </div>
+
+    <div class="section">
+        <h2>Navigation Actions</h2>
+
+        <button class="btn" onclick="returnToLastPage()">
+            <div>
+                <span class="btn-icon">←</span>
+                <strong>Return to Last Page</strong>
+                <span class="badge">WORKS</span>
+            </div>
+            <div class="btn-description">Uses navigation.back to go back</div>
+        </button>
+
+        <button class="btn btn-experimental" onclick="returnToTour()">
+            <div>
+                <span class="btn-icon">🎯</span>
+                <strong>Return to Tour</strong>
+                <span class="badge">MODAL</span>
+            </div>
+            <div class="btn-description">Opens tour as overlay (tour ID: 57959)</div>
+        </button>
+
+        <button class="btn btn-experimental" onclick="returnToMap()">
+            <div>
+                <span class="btn-icon">🗺️</span>
+                <strong>Return to Map</strong>
+                <span class="badge">EXPERIMENTAL</span>
+            </div>
+            <div class="btn-description">Attempts to open map (may not work)</div>
+        </button>
+    </div>
+
+    <div class="section">
+        <h2>Activity Log</h2>
+        <div class="output" id="output">Runtime loading...</div>
+    </div>
+
+    <script>
+        var output = document.getElementById('output');
+
+        // Display runtime
+        var runtime = window.stqryRuntime || 'Unknown';
+        document.getElementById('runtimeBadge').textContent = 'Runtime: ' + runtime;
+        log('Runtime: ' + runtime);
+        log('ReactNativeWebView: ' + (window.ReactNativeWebView ? 'Yes' : 'No'));
+        log('');
+
+        function log(msg) {
+            var timestamp = new Date().toLocaleTimeString();
+            output.textContent += '[' + timestamp + '] ' + msg + '\n';
+            console.log(msg);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function callStqryApp(action, data) {
+            var message = {
+                action: action,
+                version: 'v1',
+                data: data || {}
+            };
+
+            log('→ Sending: ' + action);
+            log('  Data: ' + JSON.stringify(data || {}, null, 2));
+
+            if (window.ReactNativeWebView) {
+                window.ReactNativeWebView.postMessage(JSON.stringify(message));
+                log('  Via: ReactNativeWebView');
+            } else if (window.parent && window.parent !== window) {
+                window.parent.postMessage(JSON.stringify(message), '*');
+                log('  Via: parent.postMessage');
+            } else {
+                log('  ⚠ No parent available - running in standalone mode');
+            }
+            log('');
+        }
+
+        // Return to last page (navigation.back)
+        function returnToLastPage() {
+            log('Action: Return to Last Page');
+            callStqryApp('navigation.back', {});
+        }
+
+        // Return to tour (linking.openInternal with tour subtype)
+        function returnToTour() {
+            log('Action: Return to Tour');
+            log('Note: Opens as overlay/modal, not navigation');
+            callStqryApp('linking.openInternal', {
+                params: {
+                    subtype: 'tour',
+                    id: 57959  // Default test tour ID
+                }
+            });
+        }
+
+        // Return to map (linking.openInternal with map subtype)
+        function returnToMap() {
+            log('Action: Return to Map');
+            log('Note: This action may not work in current STQRY API');
+            callStqryApp('linking.openInternal', {
+                params: {
+                    subtype: 'map',
+                    id: 57959  // Default test map ID
+                }
+            });
+        }
+
+        // Listen for messages from parent
+        window.addEventListener('message', function(e) {
+            try {
+                var message = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+                if (message && message.action) {
+                    log('← Received: ' + JSON.stringify(message, null, 2));
+                }
+            } catch (err) {
+                // Ignore invalid messages
+            }
+        });
+
+        log('Navigation test page loaded');
+        log('Ready to test navigation actions');
+        log('');
+    </script>
+</body>
+</html>
